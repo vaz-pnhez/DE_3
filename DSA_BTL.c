@@ -43,6 +43,36 @@ void AddNode(DList *l) {
     }
 }
 
+
+int isPrime(int n) {
+    if (n < 2) return 0;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return 0;
+    }
+    return 1;
+}
+
+void DeleteAtPosition(DList *l, int k) {
+    if (k <= 0 || l->Head == NULL) return;
+    DNode *n = l->Head;
+    int count = 1;
+    while (n && count < k) {
+        n = n->Next;
+        count++;
+    }
+    if (n == NULL) return;
+
+    if (n == l->Head) l->Head = n->Next;
+    if (n == l->Tail) l->Tail = n->Pre;
+    if (n->Pre) n->Pre->Next = n->Next;
+    if (n->Next) n->Next->Pre = n->Pre;
+
+    printf("Da xoa phan tu o vi tri %d co gia tri %d\n", k, n->data);
+    free(n);
+}
+
+
+
 int PowofNum(DList l, int x) {
     DNode *n = l.Head;
     long long powN = 1;
@@ -124,8 +154,27 @@ int main() {
                 AddNode(&l);
                 printList(l);
                 break;
-            case 2:
-                break;
+            case 2: 
+    int pos = 5;
+    DNode *n = l.Head;
+    int count = 1;
+    while (n && count < pos) {
+        n = n->Next;
+        count++;
+    }
+    if (n == NULL) {
+        printf("Danh sach khong co du 5 phan tu!\n");
+        break;
+    }
+    if (isPrime(n->data)) {
+        printf("Phan tu o vi tri thu 5 = %d la so nguyen to -> Xoa no!\n", n->data);
+        DeleteAtPosition(&l, pos);
+    } else {
+        printf("Phan tu o vi tri thu 5 = %d KHONG phai so nguyen to.\n", n->data);
+    }
+    printList(l);
+    break;
+
             case 3:
                 if (PowofNum(l, 5) > 1) printf("Tich cua cac so chan, duong chia het cho 5: %d\n",  PowofNum(l, 5));
                 else printf("Khong co so nao thoa man!!\n");
