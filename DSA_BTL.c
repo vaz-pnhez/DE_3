@@ -127,19 +127,14 @@ void FilterList(DList *l) {
                 DNode *temp = p;
                 p = p->Next;
                 // Check p la Head ?
-                if (temp == l->Head) {
-                    l->Head = temp->Next;
-                }
-                else {
-                    temp->Pre->Next = temp->Next;
-                }
+                if (temp == l->Head) l->Head = temp->Next;
                 // Check p la Tail ?
-                if (temp == l->Tail) {
-                    l->Tail = temp->Pre;
-                }
-                else {
+                if (temp == l->Tail) l->Tail = temp->Pre;
+                if (temp->Pre) 
+                    temp->Pre->Next = temp->Next;
+                if (temp->Next)
                     temp->Next->Pre = temp->Pre;
-                }
+                free(temp->value);
                 free(temp);
             }
             else p = p->Next;
@@ -200,6 +195,8 @@ int main() {
             break;
         case 4:
             SortList(&l);
+            printf("Thanh cong!!\n");
+            printList(l);
             break;
         case 5:
             FilterList(&l);
