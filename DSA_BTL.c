@@ -14,11 +14,13 @@ typedef struct tagDNode {
 
 typedef struct tagDList {
     DNode *Head, *Tail;
+    int size;
 } DList;
 
 void CreateDList(DList *l) {
     l->Head = NULL;
     l->Tail = NULL;
+    l->size = 0;
 }
 
 DNode *CreateNode(int x) {
@@ -32,11 +34,9 @@ DNode *CreateNode(int x) {
     return n;
 }
 
-void AddNode(DList *l) {
-    char input[10];
-    printf("Nhap danh sach (# de ngung nhap): ");
-    while (1) {
-        scanf("%s", input);
+void AddNode(DList *l, FILE *f) {
+    char input[20];
+    while (fscanf(f, "%s", input) != EOF) {
         if (strcmp(input, "#") == 0) break;
         DNode *n = CreateNode(atoi(input));
         if (l->Head == NULL) {
@@ -48,6 +48,7 @@ void AddNode(DList *l) {
             n->Pre = l->Tail;
             l->Tail = n;
         }
+        l->size++;
     }
 }
 
@@ -91,6 +92,7 @@ void DeleteAtPosition(DList *l, int locate) {
         DeleteNode(l, n);
         free(n->value);
         free(n);
+        l->size--;
     } else printf("Phan tu o vi tri %d khong phai so nguyen to!!\n", locate);
 }
 
@@ -136,10 +138,46 @@ void FilterList(DList *l) {
                     temp->Next->Pre = temp->Pre;
                 free(temp->value);
                 free(temp);
+                l->size--;
             }
             else p = p->Next;
         }
     }
+}
+
+void DeleteList(DList *l) {
+    while (l->Head) {
+        DNode *temp = l->Head;
+        l->Head = l->Head->Next;
+        if (temp->value) free(temp->value);
+        free(temp);
+    }
+    l->Tail = NULL;
+    l->size = 0;
+}
+
+void Fibonacci(DList l) {
+    DNode *n = l.Head;
+    int f1 = 1;   // fib[n-1]
+    int f2 = 0;   // fib[n-2]
+    int f  = 0;   // fib hiện tại
+    int count = 0;
+    while (n) {
+        if (f == n->value->data) {
+            count++;
+            printf("%d ", n->value->data);
+            n = n->Next;
+        }
+        else if (f > n->value->data) {
+            n = n->Next;
+        }
+        else {
+            f = f1 + f2; // tạo số tiếp theo
+            f2 = f1;
+            f1 = f;
+        }
+    }
+    if (count == 0) printf("-- EMPTY --");
 }
 
 void printList(DList l) {
@@ -163,57 +201,45 @@ void printAddvsData(DList l) {
 }
 
 int main() {
+    FILE *f = fopen("input.txt", "r");
+    if (!f) {
+        printf("Khong mo duoc file input.txt");
+        return 1;
+    }
     DList l;
-    CreateDList(&l);
-    while (1) {
-        printf("\n-------- MENU --------\n\n");
-        printf("1. Khoi tao danh sach.\n");
-        printf("2. Kiem tra tinh nguyen to va xoa o vi tri K.\n");
-        printf("3. Tinh tich cac so Chan, Duong chia het cho 5 (tru 0).\n");
-        printf("4. Sap xep tang dan.\n");
-        printf("5. Xoa cac phan tu trung nhau chi giu lai 1.\n");
-        printf("6. In danh sach dia chi va gia tri.\n");
-        printf("7. Hien thi Fibonaci.\n");
-        printf("0. Thoat.\n");
-        printf("\nChoice: ");
-        int opt;
-        scanf("%d", &opt);
-        switch (opt) {
-        case 1:
-            AddNode(&l);
-            printList(l);
-            break;
-        case 2:
-            DeleteAtPosition(&l,5);
-            printList(l);
-            break;
-        case 3:
-            if (PowofNum(l, 5) > 1)
-                printf("Tich cua cac so chan, duong chia het cho 5: %d\n", PowofNum(l, 5));
-            else
-                printf("Khong co so nao thoa man!!\n");
-            break;
-        case 4:
-            SortList(&l);
-            printf("Thanh cong!!\n");
-            printList(l);
-            break;
-        case 5:
-            FilterList(&l);
-            printf("Thanh cong!\n");
-            break;
-        case 6:
-            printf("---- Danh sach phan tu ----\n");
-            printf("%3s | %15s | %10s\n", "STT", "Address", "Data");
-            printAddvsData(l);
-            break;
-        case 7:
-            break;
-        case 0:
-            printf("Dang thoat ....");
-            return 0;
-        default:
-            printf("Lua chon khong hop le!!");
-        }
+    
+    for (int i = 0; i < 5; i++) {
+        printf("\n---------------------------\n");
+        printf("TESTCASE #%d", i + 1);
+        printf("\n---------------------------\n");
+        CreateDList(&l);
+        // Nhập List
+        AddNode(&l, f);
+        printf("List vua nhap: "); printList(l);
+        printf("\n");
+        // Kiểm tra tính nguyên tố và xoá khỏi List
+        DeleteAtPosition(&l, 5); printList(l);
+        printf("\n");
+        // Tính tích các số chẵn, dương chia hết cho 5 > 0
+        if (PowofNum(l, 5) > 1) printf("Tich cua cac so chan, duong chia het cho 5: %d\n", PowofNum(l, 5));
+        else printf("Khong co so nao thoa man chan, duong, chia het cho 5!!\n");
+        printf("\n");
+        // Sắp xếp tăng dần
+        SortList(&l); 
+        printf("List sau khi sap xep tang dan: "); printList(l);
+        printf("\n");
+        // Xoá các phần tử trùng nhau chỉ để lại 1 số
+        FilterList(&l);
+        printf("List sau khi loc: "); printList(l);
+        printf("\n");
+        // In danh sách dịa chỉ và giá trị
+        printf("---- Danh sach phan tu ----\n");
+        printf("%3s | %15s | %10s\n", "STT", "Address", "Data"); 
+        printAddvsData(l);
+        printf("\n");
+        // In fibonaci
+        printf("Day Fibonacci trong List: "); Fibonacci(l);
+        printf("\n");
+        DeleteList(&l);
     }
 }
