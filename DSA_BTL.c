@@ -201,7 +201,7 @@ int main() {
     }
     DList l;
     
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 10; i++) {
         printf("\n---------------------------\n");
         printf("TESTCASE #%d", i + 1);
         printf("\n---------------------------\n");
