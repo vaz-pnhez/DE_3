@@ -88,7 +88,7 @@ void DeleteAtPosition(DList *l, int locate) {
         return; 
     }
     if (isPrime(n->value->data)) {
-        printf("Da xoa phan tu o vi tri %d co gia tri %d\n", locate, n->value->data);
+        printf("Da xoa phan tu o vi tri %d co gia tri %d la SNT\n", locate, n->value->data);
         DeleteNode(l, n);
         free(n->value);
         free(n);
@@ -110,8 +110,8 @@ int PowofNum(DList l, int x) {
 void SortList(DList *l) {
     DNode *i = l->Head;
     if (!i) return;
-    for (i; i != NULL; i = i->Next) {
-        for (DNode *j = l->Tail; j != i; j = j->Pre) {
+    for (i; i->Next != NULL; i = i->Next) {
+        for (DNode *j = l->Tail; j != i && j->Pre != NULL; j = j->Pre) {
             if (j->value->data < j->Pre->value->data) {
                 SN *temp = j->value;
                 j->value = j->Pre->value;
@@ -125,22 +125,15 @@ void FilterList(DList *l) {
     for (DNode *n = l->Head; n; n = n->Next) {
         DNode *p = n->Next;
         while (p) {
+            DNode *next = p->Next;
             if (p->value->data == n->value->data) { // Check data(p) = data(n) ?
-                DNode *temp = p;
-                p = p->Next;
-                // Check p la Head ?
-                if (temp == l->Head) l->Head = temp->Next;
-                // Check p la Tail ?
-                if (temp == l->Tail) l->Tail = temp->Pre;
-                if (temp->Pre) 
-                    temp->Pre->Next = temp->Next;
-                if (temp->Next)
-                    temp->Next->Pre = temp->Pre;
-                free(temp->value);
-                free(temp);
+                
+                DeleteNode(l, p);
+                free(p->value);
+                free(p);
                 l->size--;
             }
-            else p = p->Next;
+            p = next;
         }
     }
 }
